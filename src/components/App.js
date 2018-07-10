@@ -17,44 +17,59 @@ class App extends Component {
       posts: []
     };
 
-    this.updatePost = this.updatePost.bind( this );
-    this.deletePost = this.deletePost.bind( this );
-    this.createPost = this.createPost.bind( this );
+    this.updatePost = this.updatePost.bind(this);
+    this.deletePost = this.deletePost.bind(this);
+    this.createPost = this.createPost.bind(this);
+    this.getQuery = this.getQuery.bind(this);
   }
-  
+
   componentDidMount() {
     let promise = axios.get(baseUrl + "/posts");
-    promise.then( (response) => {
+    promise.then((response) => {
       this.setState({
-        posts : response.data
+        posts: response.data
       });
     });
   }
 
   updatePost(id, text) {
-    let promise = axios.put(`${baseUrl}/posts/?id=${id}`, {text});
-    promise.then( (response) => {
+    let promise = axios.put(`${baseUrl}/posts/?id=${id}`, { text });
+    promise.then((response) => {
       this.setState({
-        posts : response.data
+        posts: response.data
       });
     });
   }
 
   deletePost(id) {
     let promise = axios.delete(`${baseUrl}/posts/?id=${id}`);
-    promise.then( (response) => {
+    promise.then((response) => {
       this.setState({
-        post : response.data
+        posts: response.data
       });
     });
   }
 
   createPost(text) {
-    let promise = axios.post(`${baseUrl}/posts/`, {text});
-    promise.then( (response) => {
+    let promise = axios.post(`${baseUrl}/posts`, { text });
+    promise.then((response) => {
       this.setState({
-        post : response.data
+        posts: response.data
       });
+    });
+  }
+
+  getQuery(text) {
+    // axios.get(`${baseUrl}/posts?text=${text}`).then(res => {
+    //   this.setState({
+    //     posts: res.data
+    //   });
+    // });
+    let filterPosts = this.state.posts.filter( (post) => {
+      return post.text.toLowerCase().includes(text.toLowerCase())
+    });
+    this.setState({
+      posts : filterPosts
     });
   }
 
@@ -63,27 +78,29 @@ class App extends Component {
 
     return (
       <div className="App__parent">
-        <Header />
+        <Header
+          getQueryFn={this.getQuery}
+        />
 
         <section className="App__content">
 
-          <Compose 
-            createPostFn={ this.createPost }
+          <Compose
+            createPostFn={this.createPost}
           />
 
           {
-            posts.map( post => (
-              <Post 
-                key={ post.id } 
-                id={ post.id }
-                text={ post.text }
-                date={ post.date }
-                updatePostFn={ this.updatePost }
-                deletePostFn={ this.deletePost }
+            posts.map(post => (
+              <Post
+                key={post.id}
+                id={post.id}
+                text={post.text}
+                date={post.date}
+                updatePostFn={this.updatePost}
+                deletePostFn={this.deletePost}
               />
             ))
           }
-          
+
         </section>
       </div>
     );
